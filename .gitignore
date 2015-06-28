@@ -1,5 +1,5 @@
 #configuration file
-news.config
+news_config.py
 
 #ipython related
 .ipynb_checkpoints
