@@ -13,9 +13,9 @@ library(slam)
 library(reshape2)
 library(ggplot2)
 
-db <- mongoDbConnect('news_list')
+db <- mongoDbConnect('news_stemmed')
 print(dbShowCollections(db))
-query <- dbGetQuery(db, "pravda_ua", "{}", skip=0, limit = 10000)
+query <- dbGetQuery(db, "pravda_ua", "{}", skip=0, limit = 20000)
 data <- query
 rm(query)
 
@@ -28,8 +28,7 @@ doc.corpus <- tm_map(doc.corpus, removePunctuation)
 doc.corpus <- tm_map(doc.corpus, removeNumbers)
 doc.corpus <- tm_map(doc.corpus, removeWords, stopwords("russian"))
 
-
-doc.corpus <- tm_map(doc.corpus, stemDocument, "russian")
+#doc.corpus <- tm_map(doc.corpus, stemDocument, "russian")
 
 doc.corpus <- tm_map(doc.corpus, stripWhitespace)
 
@@ -39,7 +38,7 @@ TDM <- TermDocumentMatrix(doc.corpus)
 TDM
 
 DTM <- DocumentTermMatrix(doc.corpus, 
-                          control = list(stemming = TRUE, stopwords = TRUE, minWordLength = 3,
+                          control = list(stemming = FALSE, stopwords = TRUE, minWordLength = 4,
                           removeNumbers = TRUE, removePunctuation = TRUE))
 inspect(DTM[1:10,1:10])
 
@@ -47,18 +46,18 @@ str(DTM)
 
 #Now we can start asking questions like: what are the most frequently occurring terms? Each of these words occurred more that 2000 times.
 #findFreqTerms(TDM, 2000)
-findFreqTerms(TDM, 300)
+findFreqTerms(TDM, 2500)
 
 #What about associations between words? Let’s have a look at what other words had a high association with “love”.
 #findAssocs(TDM, "love", 0.8)
 findAssocs(TDM, "восток", 0.4)
 
 
-TDM.common = removeSparseTerms(TDM, 0.8)
+TDM.common = removeSparseTerms(TDM, 1)
 dim(TDM)
 dim(TDM.common)
 
-inspect(TDM.common[1:24,1:24])
+inspect(TDM.common[1:12,1:24])
 
 
 TDM.dense <- as.matrix(TDM.common)
@@ -80,6 +79,8 @@ rowTotals <- apply(DTM , 1, sum)
 DTM.new   <- DTM[rowTotals> 0, ] 
 lda <- LDA(DTM.new, 30)
 terms(lda, 5)
-#topics(lda, 5)
+topics(lda, 5)
+
+ctm <- CTM(DTM.new, 30)
 
 
