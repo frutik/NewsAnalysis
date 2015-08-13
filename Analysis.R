@@ -15,9 +15,10 @@ library(ggplot2)
 
 db <- mongoDbConnect('news_stemmed')
 print(dbShowCollections(db))
-query <- dbGetQuery(db, "pravda_ua", "{}", skip=0, limit = 20000)
+query <- dbGetQuery(db, "pravda_ua", "{}", skip=0, limit = 100)
 data <- query
 rm(query)
+data[nchar(data$text) > 0, 0]
 
 doc.vec <- VectorSource(data$text)
 doc.corpus <- Corpus(doc.vec)
@@ -29,10 +30,7 @@ doc.corpus <- tm_map(doc.corpus, removeNumbers)
 doc.corpus <- tm_map(doc.corpus, removeWords, stopwords("russian"))
 
 #doc.corpus <- tm_map(doc.corpus, stemDocument, "russian")
-
 doc.corpus <- tm_map(doc.corpus, stripWhitespace)
-
-inspect(doc.corpus[2])
 
 TDM <- TermDocumentMatrix(doc.corpus)
 TDM
