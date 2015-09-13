@@ -13,9 +13,9 @@ library(slam)
 library(reshape2)
 library(ggplot2)
 
-db <- mongoDbConnect('news_stemmed')
+db <- mongoDbConnect('news')
 print(dbShowCollections(db))
-query <- dbGetQuery(db, "pravda_ua", "{}", skip=0, limit = 100)
+query <- dbGetQuery(db, "pravda_cleaned", "{}", skip=0, limit = 100)
 data <- query
 rm(query)
 data[nchar(data$text) > 0, 0]
@@ -23,6 +23,7 @@ data[nchar(data$text) > 0, 0]
 doc.vec <- VectorSource(data$text)
 doc.corpus <- Corpus(doc.vec)
 summary(doc.corpus)
+
 
 doc.corpus <- tm_map(doc.corpus, content_transformer(tolower))
 doc.corpus <- tm_map(doc.corpus, removePunctuation)
@@ -44,18 +45,18 @@ str(DTM)
 
 #Now we can start asking questions like: what are the most frequently occurring terms? Each of these words occurred more that 2000 times.
 #findFreqTerms(TDM, 2000)
-findFreqTerms(TDM, 2500)
+findFreqTerms(TDM, 50)
 
 #What about associations between words? Let’s have a look at what other words had a high association with “love”.
 #findAssocs(TDM, "love", 0.8)
 findAssocs(TDM, "восток", 0.4)
 
 
-TDM.common = removeSparseTerms(TDM, 1)
+TDM.common = removeSparseTerms(TDM, 0.7)
 dim(TDM)
 dim(TDM.common)
 
-inspect(TDM.common[1:12,1:24])
+inspect(TDM.common[1:10,1:10])
 
 
 TDM.dense <- as.matrix(TDM.common)
@@ -80,5 +81,6 @@ terms(lda, 5)
 topics(lda, 5)
 
 ctm <- CTM(DTM.new, 30)
+ctm
 
 
