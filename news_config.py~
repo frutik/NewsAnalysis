@@ -1,0 +1,7 @@
+mongo_db_connection_string = 'mongodb://localhost'
+#mongo_db_connection_string = 'mongodb://admin:m0adm&n@dbh62.mongolab.com:27627/twittter-source'
+
+db = 'news'
+pravda_collection = 'pravda'
+pravda_cleaned_collection = 'pravda_cleaned'
+russia_today_collection = 'rt'
